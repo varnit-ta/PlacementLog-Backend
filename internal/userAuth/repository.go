@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/lib/pq"
 	"github.com/varnit-ta/PlacementLog/internal/db"
@@ -60,6 +61,9 @@ func (repo UserAuthRepo) Login(regno, pass string) (*db.User, error) {
 	if regno == "" || pass == "" {
 		return nil, fmt.Errorf("all fields are required")
 	}
+
+	// Standardize regno to lowercase for case-insensitive login
+	regno = strings.ToLower(regno)
 
 	re := regexp.MustCompile(`^\d{2}[a-z]{3}\d{4}$`)
 
@@ -127,6 +131,9 @@ func (repo UserAuthRepo) Register(regno, username, pass string) (*db.User, error
 	if regno == "" || username == "" || pass == "" {
 		return nil, fmt.Errorf("all fields are required")
 	}
+
+	// Convert the input to lowercase BEFORE validation
+	regno = strings.ToLower(regno)
 
 	re := regexp.MustCompile(`^\d{2}[a-z]{3}\d{4}$`)
 
