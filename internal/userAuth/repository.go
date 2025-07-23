@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/lib/pq"
 	"github.com/varnit-ta/PlacementLog/internal/db"
