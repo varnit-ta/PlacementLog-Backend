@@ -13,7 +13,7 @@ func NewPlacementsRepo(db *sql.DB) *PlacementsRepo {
 	return &PlacementsRepo{db: db}
 }
 
-func (r *PlacementsRepo) InsertPlacementCompany(company string, ctc float64, placementDate string) (int, error) {
+func (r *PlacementsRepo) InsertPlacementCompany(company string, ctc *float64, placementDate string) (int, error) {
 	var id int
 	query := `INSERT INTO placement_companies (company, ctc, placement_date) VALUES ($1, $2, $3) RETURNING id`
 	err := r.db.QueryRow(query, company, ctc, placementDate).Scan(&id)
@@ -44,10 +44,19 @@ func (r *PlacementsRepo) GetAllPlacements() ([]PlacementCompany, error) {
 
 	for rows.Next() {
 		var p PlacementCompany
-		err := rows.Scan(&p.ID, &p.Company, &p.CTC, &p.PlacementDate, &p.CreatedAt)
+		var ctcNullable sql.NullFloat64
+		err := rows.Scan(&p.ID, &p.Company, &ctcNullable, &p.PlacementDate, &p.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
+		
+		// Convert sql.NullFloat64 to CTCValue
+		if ctcNullable.Valid {
+			p.CTC = CTCValue{Value: &ctcNullable.Float64}
+		} else {
+			p.CTC = CTCValue{Value: nil}
+		}
+		
 		branchRows, err := r.db.Query(`SELECT branch, count FROM placement_branchwise_record WHERE placement_id = $1`, p.ID)
 		if err != nil {
 			return nil, err

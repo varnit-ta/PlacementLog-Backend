@@ -13,7 +13,7 @@ type BranchCount struct {
 type PlacementCompany struct {
 	ID            int           `json:"id"`
 	Company       string        `json:"company"`
-	CTC           float64       `json:"ctc"`
+	CTC           CTCValue      `json:"ctc"`
 	PlacementDate string        `json:"placement_date"`
 	CreatedAt     string        `json:"created_at"`
 	BranchCounts  []BranchCount `json:"branch_counts,omitempty"`
@@ -45,7 +45,7 @@ func CountBranches(regNos []string) []BranchCount {
 //go:generate mockgen -destination=mock_placements_repo.go -package=placements . PlacementsRepository
 
 type PlacementsRepository interface {
-	InsertPlacementCompany(company string, ctc float64, placementDate string) (int, error)
+	InsertPlacementCompany(company string, ctc *float64, placementDate string) (int, error)
 	InsertBranchwiseRecords(placementID int, branchCounts []BranchCount) error
 	GetAllPlacements() ([]PlacementCompany, error)
 	GetCompanyBranchMap() ([]CompanyBranch, error)
@@ -66,7 +66,7 @@ func (s *PlacementsService) AddPlacement(req PlacementRequest) (PlacementRespons
 		placementDate = time.Now().Format("2006-01-02")
 	}
 	branchCounts := CountBranches(req.Students)
-	placementID, err := s.repo.InsertPlacementCompany(req.Company, req.CTC, placementDate)
+	placementID, err := s.repo.InsertPlacementCompany(req.Company, req.CTC.Value, placementDate)
 	if err != nil {
 		return PlacementResponse{}, err
 	}

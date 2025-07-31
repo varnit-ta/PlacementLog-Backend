@@ -1,6 +1,8 @@
 package placements
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/varnit-ta/PlacementLog/pkg/utils"
@@ -14,9 +16,44 @@ func NewPlacementsHandler(srv *PlacementsService) *PlacementsHandler {
 	return &PlacementsHandler{srv: srv}
 }
 
+// CTCValue handles both numeric CTC and "NA" string
+type CTCValue struct {
+	Value *float64
+}
+
+// UnmarshalJSON implements custom JSON unmarshaling for CTC
+func (c *CTCValue) UnmarshalJSON(data []byte) error {
+	// Try to unmarshal as string first (for "NA")
+	var str string
+	if err := json.Unmarshal(data, &str); err == nil {
+		if str == "NA" || str == "na" {
+			c.Value = nil
+			return nil
+		}
+		return fmt.Errorf("invalid CTC string value: %s, only 'NA' is allowed", str)
+	}
+
+	// Try to unmarshal as float64
+	var val float64
+	if err := json.Unmarshal(data, &val); err == nil {
+		c.Value = &val
+		return nil
+	}
+
+	return fmt.Errorf("CTC must be a number or 'NA'")
+}
+
+// MarshalJSON implements custom JSON marshaling for CTC
+func (c CTCValue) MarshalJSON() ([]byte, error) {
+	if c.Value == nil {
+		return json.Marshal("NA")
+	}
+	return json.Marshal(*c.Value)
+}
+
 type PlacementRequest struct {
 	Company       string   `json:"company"`
-	CTC           float64  `json:"ctc"`
+	CTC           CTCValue `json:"ctc"`
 	PlacementDate string   `json:"placement_date"`
 	Students      []string `json:"students"`
 }
@@ -24,7 +61,7 @@ type PlacementRequest struct {
 type PlacementResponse struct {
 	PlacementID   int           `json:"placement_id"`
 	Company       string        `json:"company"`
-	CTC           float64       `json:"ctc"`
+	CTC           CTCValue      `json:"ctc"`
 	PlacementDate string        `json:"placement_date"`
 	BranchCounts  []BranchCount `json:"branch_counts"`
 }
