@@ -163,26 +163,3 @@ func (h AdminAuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, resp, http.StatusCreated)
 }
-
-/*
-Logout handles admin logout requests.
-For JWT tokens, logout is typically handled client-side by removing the token.
-This endpoint provides a standardized way to handle admin logout requests.
-
-HTTP Method: POST
-Endpoint: /admin/logout
-
-Headers Required:
-- Authorization: Bearer <admin_jwt_token>
-
-Response (200 OK):
-
-	{
-	  "message": "admin logged out successfully"
-	}
-
-Note: The client should remove the JWT token from local storage after calling this endpoint.
-*/
-func (h AdminAuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	utils.WriteJSON(w, map[string]string{"message": "admin logged out successfully"}, http.StatusOK)
-}

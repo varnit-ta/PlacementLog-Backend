@@ -78,7 +78,6 @@ func (a App) Routes() http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.UserAuthMiddleware)
 
-		r.Post("/auth/logout", a.userAuthHandler.Logout)
 		r.Post("/posts", a.postHandler.AddPost)
 		r.Put("/posts", a.postHandler.UpdatePost)
 		r.Delete("/posts", a.postHandler.DeletePost)
@@ -89,7 +88,6 @@ func (a App) Routes() http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(middleware.AdminAuthMiddleware)
 
-		r.Post("/admin/logout", a.adminHandler.Logout)
 		r.Post("/admin/register", a.adminHandler.Register)
 		r.Get("/admin/posts", a.postHandler.GetAllPostsForAdmin)
 		r.Put("/admin/posts/review", a.postHandler.ReviewPost)

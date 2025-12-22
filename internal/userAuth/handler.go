@@ -157,26 +157,3 @@ func (h *UserAuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	utils.WriteJSON(w, resp, http.StatusCreated)
 }
-
-/*
-Logout handles user logout requests.
-For JWT tokens, logout is typically handled client-side by removing the token.
-This endpoint provides a standardized way to handle logout requests.
-
-HTTP Method: POST
-Endpoint: /auth/logout
-
-Headers Required:
-- Authorization: Bearer <jwt_token>
-
-Response (200 OK):
-
-	{
-	  "message": "logged out successfully"
-	}
-
-Note: The client should remove the JWT token from local storage after calling this endpoint.
-*/
-func (h *UserAuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
-	utils.WriteJSON(w, map[string]string{"message": "logged out successfully"}, http.StatusOK)
-}
