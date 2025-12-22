@@ -101,9 +101,11 @@ func (repo PostsRepo) GetAllPostsForAdmin() ([]db.Post, error) {
 
 	for rows.Next() {
 		var p db.Post
-		if err := rows.Scan(&p.ID, &p.UserID, &p.PostBody, &p.Reviewed); err != nil {
+		var reviewed bool
+		if err := rows.Scan(&p.ID, &p.UserID, &p.PostBody, &reviewed); err != nil {
 			return nil, fmt.Errorf("failed to scan posts: %v", err)
 		}
+		p.Reviewed = reviewed
 		posts = append(posts, p)
 	}
 
@@ -415,6 +417,3 @@ func (repo PostsRepo) ReviewPost(postId string, action string) error {
 
 	return nil
 }
-
-// Ensure PostsRepo implements PostsRepository
-var _ PostsRepository = (*PostsRepo)(nil)
